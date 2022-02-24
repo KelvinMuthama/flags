@@ -1,25 +1,52 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState } from "react";
+import axios from "axios";
 
-function App() {
+const App = () => {
+  const [continent, setContinent] = useState("");
+  const [countries, setCountries] = useState([]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+    <>
+      <div className="mx-20 mt-10 w-80">
+        <label>Select Continent</label>
+        <select
+          className="bg-gray-50 border border-gray-500 text-gray-900 text-sm  focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+          onChange={async (e) => {
+            setContinent(e.target.value);
+            await axios
+              .get(`https://restcountries.com/v3.1/region/${e.target.value}`)
+              .then((res) => {
+                console.log(res.data);
+                setCountries(res.data.map((c) => c));
+              });
+          }}
         >
-          Learn React
-        </a>
-      </header>
-    </div>
+          <option className="hidden">-- Continent --</option>
+          <option>Africa</option>
+          <option>Americas</option>
+          <option>Asia</option>
+          <option>Europe</option>
+          <option>Oceania</option>
+        </select>
+      </div>
+
+      <section className="mx-20 mt-10 grid grid-cols-3 gap-4 md:grid-rows-6">
+        {continent.length !== 0 &&
+          countries.map((c) => (
+            <div className="w-full h-full" key={c.area}>
+              <div className="overflow-hidden rounded-lg shadow-lg w-full">
+                <img
+                  className="w-full h-full object-cover"
+                  src={c.flags.svg}
+                  alt={`Flag of ${c.name.common}`}
+                />
+                <h1 className="text-center text-lg p-10">{c.name.common}</h1>
+              </div>
+            </div>
+          ))}
+      </section>
+    </>
   );
-}
+};
 
 export default App;
